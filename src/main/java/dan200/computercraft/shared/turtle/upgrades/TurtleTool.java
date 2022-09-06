@@ -22,13 +22,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -141,6 +148,21 @@ public class TurtleTool extends AbstractTurtleUpgrade
         Pair<Entity, Vec3> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
         if( hit != null )
         {
+            if( item.is( Items.SHEARS ) )
+            {
+                Entity entity = hit.getKey();
+                if ( entity instanceof Sheep )
+                {
+                    Sheep sheep = (Sheep)entity;
+                    if(!sheep.isSheared())
+                    {
+                        DropConsumer.set( entity, turtleDropConsumer( turtleTile, turtle ) );
+                        sheep.shear(SoundSource.NEUTRAL);
+                        stopConsuming( turtleTile, turtle );
+                    }
+                }
+                return TurtleCommandResult.success();
+            }
             // Load up the turtle's inventory
             ItemStack stackCopy = item.copy();
             turtlePlayer.loadInventory( stackCopy );
@@ -250,13 +272,24 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Play the destruction sound and particles
         world.levelEvent( 2001, blockPosition, Block.getId( state ) );
 
+        boolean isIce = state.is(Blocks.ICE) | state.is(Blocks.PACKED_ICE) | state.is(Blocks.BLUE_ICE);
+
         // Destroy the block
         boolean canHarvest = state.canHarvestBlock( world, blockPosition, turtlePlayer );
         boolean canBreak = state.onDestroyedByPlayer( world, blockPosition, turtlePlayer, canHarvest, fluidState );
         if( canBreak ) state.getBlock().destroy( world, blockPosition, state );
         if( canHarvest && canBreak )
         {
-            state.getBlock().playerDestroy( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem() );
+            if ( isIce )
+            {
+                ItemStack mainHand = turtlePlayer.getMainHandItem();
+                mainHand.enchant(Enchantments.SILK_TOUCH, 1);
+                state.getBlock().playerDestroy( world, turtlePlayer, blockPosition, state, tile, mainHand );
+            }
+            else
+            {
+                state.getBlock().playerDestroy( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem() );
+            }
         }
 
         stopConsuming( turtleTile, turtle );
