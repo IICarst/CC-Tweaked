@@ -812,6 +812,15 @@ public class TurtleAPI implements ILuaAPI
             : MethodResult.of( getItemDetail( actualSlot, false ) );
     }
 
+    @LuaFunction
+    public final MethodResult renameItem( String newName, Optional<Integer> slot ) throws LuaException
+    {
+        int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
+
+        return trackCommand( new TurtleRenameCommand( newName, actualSlot ) );
+    }
+
+
     private Object[] getItemDetail( int slot, boolean detailed )
     {
         ItemStack stack = turtle.getInventory().getItem( slot );
