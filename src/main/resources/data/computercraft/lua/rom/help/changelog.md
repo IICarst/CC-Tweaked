@@ -1,3 +1,47 @@
+# New features in CC: Tweaked 1.100.9
+
+* Add documentation for setting up GPS (Lupus590).
+* Add WAV support to the `speaker` program (MCJack123).
+* Expose item groups in `getItemDetail` (itisluiz).
+* Other fixes to documentation (Erb3, JohnnyIrvin).
+* Add Norwegian translation (Erb3).
+
+Several bug fixes:
+* Fix z-fighting on bold printout borders (toad-dev).
+* Fix `term.blit` failing on certain strings.
+* Fix `getItemLimit()` using the wrong slot (heap-underflow).
+* Increase size of monitor depth blocker.
+
+# New features in CC: Tweaked 1.100.8
+
+Several bug fixes:
+* Fix NPE within disk drive and printer code.
+
+# New features in CC: Tweaked 1.100.6
+
+* Various documentation improvements (MCJack123, FayneAldan).
+* Allow CC's blocks to be rotated when used in structure blocks (Seniorendi).
+* Several performance improvements to computer execution.
+* Add parse_empty_array option to textutils.unserialiseJSON (@ChickChicky).
+* Add an API to allow other mods to provide extra item/block details (Lemmmy).
+* All blocks with GUIs can now be "locked" (via a command or NBT editing tools) like vanilla inventories. Players can only interact with them with a specific named item.
+
+Several bug fixes:
+* Fix printouts being rendered with an offset in item frames (coolsa).
+* Reduce position latency when playing audio with a noisy pocket computer.
+* Fix total counts in /computercraft turn-on/shutdown commands.
+* Fix "Run" command not working in the editor when run from a subdirectory (Wojbie).
+* Pocket computers correctly preserve their on state.
+
+# New features in CC: Tweaked 1.100.5
+
+* Generic peripherals now use capabilities on the given side if one isn't provided on the internal side.
+* Improve performance of monitor rendering.
+
+Several bug fixes:
+* Various documentation fixes (bclindner, Hasaabitt)
+* Speaker sounds are now correctly positioned on the centre of the speaker block.
+
 # New features in CC: Tweaked 1.100.4
 
 Several bug fixes:

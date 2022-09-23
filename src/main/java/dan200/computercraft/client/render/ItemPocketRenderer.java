@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -24,9 +24,9 @@ import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 /**
  * Emulates map rendering for pocket computers.
@@ -96,23 +96,19 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         // Render the light
         int lightColour = ItemPocketComputer.getLightState( stack );
         if( lightColour == -1 ) lightColour = Colour.BLACK.getHex();
-        renderLight( matrix, bufferSource, lightColour, width, height );
+        renderLight( transform, bufferSource, lightColour, width, height );
 
         if( computer != null && terminal != null )
         {
             FixedWidthFontRenderer.drawTerminal(
-                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
+                FixedWidthFontRenderer.toVertexConsumer( transform, bufferSource.getBuffer( RenderTypes.TERMINAL ) ),
                 MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
-            );
-            FixedWidthFontRenderer.drawBlocker(
-                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ) ),
-                0, 0, width, height
             );
         }
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ) ),
+                FixedWidthFontRenderer.toVertexConsumer( transform, bufferSource.getBuffer( RenderTypes.TERMINAL ) ),
                 0, 0, width, height
             );
         }
@@ -131,14 +127,14 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         ComputerBorderRenderer.render( transform, render.getBuffer( ComputerBorderRenderer.getRenderType( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
     }
 
-    private static void renderLight( Matrix4f transform, MultiBufferSource render, int colour, int width, int height )
+    private static void renderLight( PoseStack transform, MultiBufferSource render, int colour, int width, int height )
     {
         byte r = (byte) ((colour >>> 16) & 0xFF);
         byte g = (byte) ((colour >>> 8) & 0xFF);
         byte b = (byte) (colour & 0xFF);
-        var c = new byte[] { r, g, b, (byte) 255 };
+        byte[] c = new byte[] { r, g, b, (byte) 255 };
 
-        VertexConsumer buffer = render.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
+        VertexConsumer buffer = render.getBuffer( RenderTypes.TERMINAL );
         FixedWidthFontRenderer.drawQuad(
             FixedWidthFontRenderer.toVertexConsumer( transform, buffer ),
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,

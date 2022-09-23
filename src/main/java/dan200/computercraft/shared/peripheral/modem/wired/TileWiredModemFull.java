@@ -87,8 +87,7 @@ public class TileWiredModemFull extends TileGeneric
         @Override
         public Vec3 getPosition()
         {
-            BlockPos pos = entity.getBlockPos();
-            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return Vec3.atCenterOf( entity.getBlockPos() );
         }
     }
 
@@ -200,6 +199,7 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
+        if( player.isCrouching() || !player.mayBuild() ) return InteractionResult.PASS;
         if( getLevel().isClientSide ) return InteractionResult.SUCCESS;
 
         // On server, we interacted if a peripheral was found
@@ -417,8 +417,7 @@ public class TileWiredModemFull extends TileGeneric
             @Override
             public Vec3 getPosition()
             {
-                BlockPos pos = getBlockPos().relative( side );
-                return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+                return Vec3.atCenterOf( getBlockPos().relative( side ) );
             }
 
             @Nonnull
