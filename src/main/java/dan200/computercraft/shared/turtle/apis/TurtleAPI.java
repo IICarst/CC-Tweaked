@@ -820,6 +820,15 @@ public class TurtleAPI implements ILuaAPI
         return trackCommand( new TurtleRenameCommand( newName, actualSlot ) );
     }
 
+    @LuaFunction
+    public final MethodResult isItemSmeltable( Optional<Integer> slot ) throws LuaException
+    {
+        int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
+
+
+        return trackCommand( new TurtleCheckSmeltableCommand( actualSlot ) );
+    }
+
 
     private Object[] getItemDetail( int slot, boolean detailed )
     {

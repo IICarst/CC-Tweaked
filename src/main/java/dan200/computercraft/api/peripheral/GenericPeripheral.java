@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A {@link GenericSource} which provides methods for a peripheral.
@@ -42,4 +43,6 @@ public interface GenericPeripheral extends GenericSource
     {
         return PeripheralType.untyped();
     }
+    @Nullable
+    default BlockEntity getTile() { return null; };
 }

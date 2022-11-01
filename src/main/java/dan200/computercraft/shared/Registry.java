@@ -28,6 +28,8 @@ import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
+import dan200.computercraft.shared.light.LightBlock;
+import dan200.computercraft.shared.light.LightTile;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
@@ -158,6 +160,8 @@ public final class Registry
         public static final RegistryObject<BlockWiredModemFull> WIRED_MODEM_FULL = BLOCKS.register( "wired_modem_full",
             () -> new BlockWiredModemFull( modemProperties() ) );
         public static final RegistryObject<BlockCable> CABLE = BLOCKS.register( "cable", () -> new BlockCable( modemProperties() ) );
+
+        public static final RegistryObject<LightBlock> LIGHT = BLOCKS.register( "light", () -> new LightBlock( properties() ) );
     }
 
     public static class ModBlockEntities
@@ -196,6 +200,9 @@ public final class Registry
             ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL, ( f, p, s ) -> new TileWirelessModem( f, p, s, false ) );
         public static final RegistryObject<BlockEntityType<TileWirelessModem>> WIRELESS_MODEM_ADVANCED =
             ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED, ( f, p, s ) -> new TileWirelessModem( f, p, s, true ) );
+
+        public static final RegistryObject<BlockEntityType<LightTile>> LIGHT =
+            ofBlock(ModBlocks.LIGHT, ( f, p, s ) -> new LightTile( f, p, s ) );
     }
 
     public static final class ModItems
@@ -249,6 +256,8 @@ public final class Registry
             () -> new ItemBlockCable.Cable( ModBlocks.CABLE.get(), properties() ) );
         public static final RegistryObject<ItemBlockCable.WiredModem> WIRED_MODEM = ITEMS.register( "wired_modem",
             () -> new ItemBlockCable.WiredModem( ModBlocks.CABLE.get(), properties() ) );
+
+        public static final RegistryObject<BlockItem> LIGHT = ofBlock( ModBlocks.LIGHT, BlockItem::new );
     }
 
     public static class ModTurtleSerialisers

@@ -8,8 +8,8 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.*;
-import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.api.peripheral.NotAttachedException;
 import dan200.computercraft.core.asm.LuaMethod;
@@ -17,11 +17,20 @@ import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
+import dan200.computercraft.shared.peripheral.modem.wired.WiredModemPeripheral;
 import dan200.computercraft.shared.util.LuaUtil;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import dan200.computercraft.shared.peripheral.generic.GenericPeripheral;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * CC's "native" peripheral API. This is wrapped within CraftOS to provide a version which works with modems.
@@ -387,5 +396,48 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             methodMap.put( method.getName(), method.getMethod() );
         }
         return methodMap;
+    }
+
+    @LuaFunction
+    public final MethodResult listMany( ILuaContext context, IArguments args ) throws LuaException {
+        Map names = args.getTable(0);
+        HashMap<String, Map<String, Object>[]> ret = new HashMap<String, Map<String, Object>[]>();
+        for(Object nameObject : names.values())
+        {
+            String name = nameObject.toString();
+            for (PeripheralWrapper p : peripherals) {
+                if ( p == null || !p.getType().equals( "modem" )) continue;
+                ModemPeripheral modem = (ModemPeripheral) p.getPeripheral();
+                if (modem.isWireless()) continue;
+                WiredModemPeripheral wiredModem = (WiredModemPeripheral) modem;
+                if( !wiredModem.getNamesRemote( p ).contains( name ) ) continue;
+
+                ConcurrentMap<String, WiredModemPeripheral.RemotePeripheralWrapper> wrappers = wiredModem.getPeripherals().get(p);
+                if( wrappers == null || wrappers.get( name ) == null ) continue;
+                GenericPeripheral peripheral = (GenericPeripheral) wrappers.get(name).getPeripheral();
+                if( peripheral == null ) continue;
+                BlockEntity tile = peripheral.getTile();
+                if( tile == null || ! (tile instanceof RandomizableContainerBlockEntity)) continue;
+                RandomizableContainerBlockEntity inventoryEntity = (RandomizableContainerBlockEntity) tile;
+                HashMap<String, Object>[] list = new HashMap[inventoryEntity.getContainerSize()];
+                for (int i = 0; i < inventoryEntity.getContainerSize(); i++) {
+                    ItemStack itemStack = inventoryEntity.getItem(i);
+                    int count = itemStack.getCount();
+                    Item item = itemStack.getItem();
+                    String itemName = item.getRegistryName().toString();
+
+                    if( !itemName.equals( "minecraft:air" ) )
+                    {
+                        list[i] = new HashMap<String, Object>();
+                        list[i].put("name", itemName);
+                        list[i].put("count", count);
+                    }
+
+                }
+                ret.put(name, list);
+            }
+
+        }
+        return MethodResult.of(ret);
     }
 }

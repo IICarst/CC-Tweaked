@@ -38,3 +38,8 @@ for k, v in pairs(native) do
     end
 end
 addCraftMethod(env)
+
+function isItemSmeltable(slot)
+    local _, ret = native.isItemSmeltable(slot)
+    return ret
+end

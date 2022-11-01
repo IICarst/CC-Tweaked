@@ -348,3 +348,8 @@ function find(ty, filter)
     end
     return table.unpack(results)
 end
+
+function listMany(names)
+    expect(1, names, "table")
+    return native.listMany(names)
+end

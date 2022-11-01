@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-class GenericPeripheral implements IDynamicPeripheral
+public class GenericPeripheral implements IDynamicPeripheral
 {
     private final String type;
     private final Set<String> additionalTypes;
@@ -80,5 +80,9 @@ class GenericPeripheral implements IDynamicPeripheral
         if( !(other instanceof GenericPeripheral generic) ) return false;
 
         return tile == generic.tile && methods.equals( generic.methods );
+    }
+
+    public BlockEntity getTile() {
+        return tile;
     }
 }

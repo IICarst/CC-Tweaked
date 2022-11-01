@@ -329,7 +329,12 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return wrappers == null ? null : wrappers.get( remoteName );
     }
 
-    private static class RemotePeripheralWrapper implements IComputerAccess
+    public final Map<IComputerAccess, ConcurrentMap<String, RemotePeripheralWrapper>> getPeripherals()
+    {
+        return peripheralWrappers;
+    }
+
+    public static class RemotePeripheralWrapper implements IComputerAccess
     {
         private final WiredModemElement element;
         private final IPeripheral peripheral;
@@ -498,6 +503,10 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             {
                 return element.getRemotePeripherals().get( name );
             }
+        }
+
+        public IPeripheral getPeripheral() {
+            return peripheral;
         }
     }
 }
