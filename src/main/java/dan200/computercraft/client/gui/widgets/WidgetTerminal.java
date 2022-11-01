@@ -7,9 +7,8 @@ package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.math.Matrix4f;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.client.render.RenderTypes;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import net.minecraft.SharedConstants;
@@ -23,9 +22,9 @@ import org.lwjgl.glfw.GLFW;
 import javax.annotation.Nonnull;
 import java.util.BitSet;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 public class WidgetTerminal extends AbstractWidget
 {
@@ -316,11 +315,10 @@ public class WidgetTerminal extends AbstractWidget
     public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         if( !visible ) return;
-        Matrix4f matrix = transform.last().pose();
         Terminal terminal = computer.getTerminal();
 
         var bufferSource = MultiBufferSource.immediate( Tesselator.getInstance().getBuilder() );
-        var emitter = FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ) );
+        var emitter = FixedWidthFontRenderer.toVertexConsumer( transform, bufferSource.getBuffer( RenderTypes.TERMINAL ) );
 
         if( terminal != null )
         {

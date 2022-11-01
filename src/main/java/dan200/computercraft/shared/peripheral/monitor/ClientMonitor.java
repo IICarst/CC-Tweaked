@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.minecraft.core.BlockPos;
@@ -32,7 +32,9 @@ public final class ClientMonitor extends ClientTerminal
 
     public int tboBuffer;
     public int tboTexture;
-    public DirectVertexBuffer buffer;
+    public int tboUniform;
+    public DirectVertexBuffer backgroundBuffer;
+    public DirectVertexBuffer foregroundBuffer;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -63,25 +65,26 @@ public final class ClientMonitor extends ClientTerminal
 
                 deleteBuffers();
 
-                tboBuffer = GlStateManager._glGenBuffers();
-                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
-                GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
+                tboBuffer = DirectBuffers.createBuffer();
+                DirectBuffers.setEmptyBufferData( GL31.GL_TEXTURE_BUFFER, tboBuffer, GL15.GL_STATIC_DRAW );
                 tboTexture = GlStateManager._genTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
                 GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
 
-                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                tboUniform = DirectBuffers.createBuffer();
+                DirectBuffers.setEmptyBufferData( GL31.GL_UNIFORM_BUFFER, tboUniform, GL15.GL_STATIC_DRAW );
 
                 addMonitor();
                 return true;
             }
 
             case VBO:
-                if( buffer != null ) return false;
+                if( backgroundBuffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new DirectVertexBuffer();
+                backgroundBuffer = new DirectVertexBuffer();
+                foregroundBuffer = new DirectVertexBuffer();
                 addMonitor();
                 return true;
 
@@ -103,7 +106,7 @@ public final class ClientMonitor extends ClientTerminal
 
         if( tboBuffer != 0 )
         {
-            RenderSystem.glDeleteBuffers( tboBuffer );
+            DirectBuffers.deleteBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
             tboBuffer = 0;
         }
 
@@ -113,17 +116,29 @@ public final class ClientMonitor extends ClientTerminal
             tboTexture = 0;
         }
 
-        if( buffer != null )
+        if( tboUniform != 0 )
         {
-            buffer.close();
-            buffer = null;
+            DirectBuffers.deleteBuffer( GL31.GL_UNIFORM_BUFFER, tboUniform );
+            tboUniform = 0;
+        }
+
+        if( backgroundBuffer != null )
+        {
+            backgroundBuffer.close();
+            backgroundBuffer = null;
+        }
+
+        if( foregroundBuffer != null )
+        {
+            foregroundBuffer.close();
+            foregroundBuffer = null;
         }
     }
 
     @OnlyIn( Dist.CLIENT )
     public void destroy()
     {
-        if( tboBuffer != 0 || buffer != null )
+        if( tboBuffer != 0 || backgroundBuffer != null )
         {
             synchronized( allMonitors )
             {

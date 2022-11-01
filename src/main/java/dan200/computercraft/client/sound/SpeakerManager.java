@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.sound;
 
-import net.minecraft.world.phys.Vec3;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,12 +26,9 @@ public class SpeakerManager
     @SubscribeEvent
     public static void playStreaming( PlayStreamingSourceEvent event )
     {
-        if( !(event.getSound() instanceof SpeakerSound sound) ) return;
-        if( sound.stream == null ) return;
+        if( !(event.getSound() instanceof SpeakerSound sound) || sound.stream == null ) return;
 
-        event.getChannel().attachBufferStream( sound.stream );
-        event.getChannel().play();
-
+        // Associate the sound with the current channel, so SpeakerInstance.pushAudio can queue audio immediately.
         sound.channel = event.getChannel();
         sound.executor = event.getEngine().executor;
     }
@@ -47,7 +44,7 @@ public class SpeakerManager
         if( sound != null ) sound.stop();
     }
 
-    public static void moveSound( UUID source, Vec3 position )
+    public static void moveSound( UUID source, SpeakerPosition position )
     {
         SpeakerInstance sound = sounds.get( source );
         if( sound != null ) sound.setPosition( position );

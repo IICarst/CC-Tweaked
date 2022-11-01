@@ -1,5 +1,5 @@
---[[- The GPS API provides a method for turtles and computers to retrieve their
-own locations.
+--[[- Use @{modem|modems} to locate the position of the current turtle or
+computers.
 
 It broadcasts a PING message over @{rednet} and wait for responses. In order for
 this system to work, there must be at least 4 computers used as gps hosts which
@@ -10,8 +10,8 @@ gps program.
 
 :::note
 When entering in the coordinates for the host you need to put in the `x`, `y`,
-and `z` coordinates of the computer, not the modem, as all modem distances are
-measured from the block the computer is in.
+and `z` coordinates of the block that the modem is connected to, not the modem.
+All modem distances are measured from the block that the modem is placed on.
 :::
 
 Also note that you may choose which axes x, y, or z refers to - so long as your
@@ -24,6 +24,7 @@ height in the way that Minecraft's debug screen displays.
 
 @module gps
 @since 1.31
+@see gps_setup For more detailed instructions on setting up GPS
 ]]
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
